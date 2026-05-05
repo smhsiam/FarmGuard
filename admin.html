@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Farm Guard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .admin-login { max-width: 420px; margin: 80px auto; background: #fff; border: 1px solid #e0ece0; border-radius: 20px; padding: 40px; box-shadow: 0 4px 24px rgba(0,0,0,0.06); text-align: center; }
+    .admin-login h2 { font-size: 1.6rem; font-weight: 800; color: #1b5e20; margin-bottom: 8px; }
+    .admin-login p  { color: #888; margin-bottom: 28px; font-size: 0.9rem; }
+    .admin-login input {
+      width: 100%; padding: 14px 16px; border: 1px solid #d4e8d4;
+      border-radius: 12px; font-size: 1rem; font-family: 'Hind Siliguri', sans-serif;
+      margin-bottom: 14px; color: #1a2e1a;
+    }
+    .admin-login input:focus { outline: 2px solid #2e7d32; }
+    .login-error { color: #c62828; font-size: 0.88rem; margin-top: -8px; margin-bottom: 10px; }
+
+    .admin-panel { display: none; }
+    .admin-tabs  { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; }
+    .admin-tab   { padding: 10px 20px; border-radius: 12px; border: 1px solid #d4e8d4; background: #fff; cursor: pointer; font-family: 'Hind Siliguri', sans-serif; font-size: 0.95rem; font-weight: 600; color: #444; transition: all 0.2s; }
+    .admin-tab.active { background: #2e7d32; color: #fff; border-color: #2e7d32; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .admin-table  { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .admin-table th { background: #f0f7f0; color: #2e7d32; font-weight: 700; padding: 12px 16px; text-align: left; }
+    .admin-table td { padding: 12px 16px; border-bottom: 1px solid #f0f7f0; color: #444; vertical-align: middle; }
+    .admin-table tr:hover td { background: #f8fdf8; }
+
+    .price-input { width: 90px; padding: 6px 10px; border: 1px solid #d4e8d4; border-radius: 8px; font-family: 'Hind Siliguri', sans-serif; font-size: 0.9rem; }
+    .save-btn    { background: #2e7d32; color: #fff; border: none; padding: 6px 16px; border-radius: 8px; cursor: pointer; font-family: 'Hind Siliguri', sans-serif; font-weight: 600; transition: background 0.2s; }
+    .save-btn:hover { background: #1b5e20; }
+    .success-msg { color: #2e7d32; font-size: 0.85rem; margin-left: 8px; }
+
+    .admin-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+    .admin-stat { background: #fff; border: 1px solid #e0ece0; border-radius: 14px; padding: 20px; text-align: center; }
+    .admin-stat-num { font-size: 1.8rem; font-weight: 800; color: #2e7d32; }
+    .admin-stat-label { color: #888; font-size: 0.88rem; margin-top: 4px; }
+
+    .chart-bars { display: flex; gap: 10px; align-items: flex-end; height: 160px; padding: 10px 0; }
+    .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .chart-bar { width: 100%; background: #2e7d32; border-radius: 6px 6px 0 0; transition: height 0.8s ease; }
+    .chart-bar-label { font-size: 0.75rem; color: #666; text-align: center; }
+    .chart-bar-val { font-size: 0.8rem; font-weight: 700; color: #2e7d32; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">🌿 Farm Guard</a>
+      <div class="nav-links">
+        <a href="index.html">হোম</a>
+        <a href="dashboard.html">ড্যাশবোর্ড</a>
+        <a href="admin.html" style="color:#2e7d32; font-weight:700;">অ্যাডমিন</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- LOGIN FORM -->
+  <div class="admin-login" id="loginSection">
+    <div style="font-size:2.5rem; margin-bottom:12px;">🔒</div>
+    <h2>অ্যাডমিন লগইন</h2>
+    <p>Farm Guard অ্যাডমিন প্যানেলে প্রবেশ করতে পাসওয়ার্ড দিন।</p>
+    <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন" onkeydown="if(event.key==='Enter') adminLogin()" />
+    <p class="login-error" id="loginError" style="display:none;">❌ ভুল পাসওয়ার্ড। আবার চেষ্টা করুন।</p>
+    <button class="btn-primary" style="width:100%; justify-content:center;" onclick="adminLogin()">🔓 লগইন করুন</button>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="admin-panel dash-container" id="adminPanel">
+    <div class="dash-header" style="display:flex; justify-content:space-between; align-items:center;">
+      <div>
+        <h1>⚙️ অ্যাডমিন প্যানেল</h1>
+        <p>Farm Guard পরিচালনা কেন্দ্র</p>
+      </div>
+      <button class="save-btn" onclick="adminLogout()">🔒 লগআউট</button>
+    </div>
+
+    <!-- Summary stats -->
+    <div class="admin-stats-grid">
+      <div class="admin-stat">
+        <div class="admin-stat-num">১,২৪৭</div>
+        <div class="admin-stat-label">👨‍🌾 মোট নিবন্ধিত কৃষক</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-num">৪,৮৯২</div>
+        <div class="admin-stat-label">🔍 মোট রোগ পরীক্ষা</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-num">৩৮টি</div>
+        <div class="admin-stat-label">📍 সক্রিয় জেলা</div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchTab('overview')">📊 সার্বিক</button>
+      <button class="admin-tab" onclick="switchTab('prices')">💰 বাজার মূল্য</button>
+      <button class="admin-tab" onclick="switchTab('farmers')">👨‍🌾 কৃষক তালিকা</button>
+    </div>
+
+    <!-- TAB: OVERVIEW -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="dash-card" style="margin-bottom:20px;">
+        <h3>🦠 সবচেয়ে বেশি শনাক্ত রোগ</h3>
+        <div class="chart-bars" id="chartBars"></div>
+      </div>
+      <div class="dash-card">
+        <h3>📍 জেলা অনুযায়ী কৃষক</h3>
+        <table class="admin-table">
+          <thead><tr><th>জেলা</th><th>কৃষক সংখ্যা</th><th>শতাংশ</th></tr></thead>
+          <tbody>
+            <tr><td>দিনাজপুর</td><td>১৪৫</td><td>11.6%</td></tr>
+            <tr><td>রাজশাহী</td><td>১২০</td><td>9.6%</td></tr>
+            <tr><td>বগুড়া</td><td>৯৮</td><td>7.9%</td></tr>
+            <tr><td>যশোর</td><td>৮৫</td><td>6.8%</td></tr>
+            <tr><td>রংপুর</td><td>৭৬</td><td>6.1%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: PRICES -->
+    <div class="tab-content" id="tab-prices">
+      <div class="dash-card">
+        <h3>💰 বাজার মূল্য পরিচালনা</h3>
+        <p style="color:#888; font-size:0.9rem; margin-bottom:16px;">মূল্য পরিবর্তন করুন এবং সংরক্ষণ করুন।</p>
+        <table class="admin-table">
+          <thead><tr><th>ফসল</th><th>জাতীয় গড় (টাকা)</th><th>একক</th><th>পরিবর্তন</th></tr></thead>
+          <tbody id="pricesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TAB: FARMERS -->
+    <div class="tab-content" id="tab-farmers">
+      <div class="dash-card">
+        <h3>👨‍🌾 সাম্প্রতিক নিবন্ধন</h3>
+        <table class="admin-table">
+          <thead><tr><th>নাম</th><th>জেলা</th><th>ফসল</th><th>তারিখ</th></tr></thead>
+          <tbody>
+            <tr><td>আবদুল করিম</td><td>দিনাজপুর</td><td>ধান, গম</td><td>আজ</td></tr>
+            <tr><td>রফিকুল ইসলাম</td><td>রাজশাহী</td><td>আম, আলু</td><td>গতকাল</td></tr>
+            <tr><td>হাসিনা বেগম</td><td>বগুড়া</td><td>সবজি</td><td>২ দিন আগে</td></tr>
+            <tr><td>মফিজুর রহমান</td><td>যশোর</td><td>পাট, ধান</td><td>৩ দিন আগে</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

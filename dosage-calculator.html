@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>কৃষি ওষুধের মাত্রা হিসাবক — Farm Guard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .calc-container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+    .calc-header h1 { font-size: 1.8rem; font-weight: 800; color: #1b5e20; margin-bottom: 6px; }
+    .calc-header p  { color: #888; margin-bottom: 32px; }
+
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    .calc-card { background: #fff; border: 1px solid #e0ece0; border-radius: 20px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+    .calc-card h3 { font-size: 1.1rem; font-weight: 700; color: #1b5e20; margin-bottom: 20px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; color: #333; margin-bottom: 6px; font-size: 0.9rem; }
+    .form-group input, .form-group select {
+      width: 100%; padding: 11px 14px;
+      border: 1px solid #d4e8d4; border-radius: 12px;
+      font-family: 'Hind Siliguri', sans-serif; font-size: 0.95rem;
+      color: #1a2e1a; background: #fff; transition: border 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #2e7d32; }
+
+    .unit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .calc-btn {
+      width: 100%; padding: 14px; border: none; border-radius: 12px;
+      background: #2e7d32; color: #fff; font-family: 'Hind Siliguri', sans-serif;
+      font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 8px; transition: background 0.2s;
+    }
+    .calc-btn:hover { background: #1b5e20; }
+
+    .result-area { display: none; margin-top: 20px; background: #f1f8f1; border: 1px solid #c8e6c9; border-radius: 14px; padding: 20px; }
+    .result-area h4 { font-weight: 700; color: #1b5e20; margin-bottom: 14px; font-size: 1rem; }
+    .result-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #d4e8d4; }
+    .result-row:last-child { border-bottom: none; }
+    .result-label { color: #555; font-size: 0.9rem; }
+    .result-value { font-weight: 800; color: #1b5e20; font-size: 1.1rem; }
+
+    .warning-box { background: #fff8e1; border: 1px solid #ffe082; border-radius: 12px; padding: 14px; margin-top: 14px; font-size: 0.88rem; color: #7c5000; }
+
+    /* Medicine list */
+    .medicine-list { display: flex; flex-direction: column; gap: 12px; }
+    .med-card { background: #f8fdf8; border: 1px solid #d4e8d4; border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.2s; }
+    .med-card:hover { border-color: #2e7d32; background: #f0f7f0; }
+    .med-card.selected { border-color: #2e7d32; background: #e8f5e9; }
+    .med-name { font-weight: 700; color: #1b5e20; margin-bottom: 2px; }
+    .med-meta { font-size: 0.82rem; color: #888; }
+    .med-dose { font-size: 0.85rem; color: #2e7d32; font-weight: 600; margin-top: 4px; }
+
+    /* Tips */
+    .tips-section { margin-top: 28px; background: #fff; border: 1px solid #e0ece0; border-radius: 20px; padding: 28px; }
+    .tips-section h3 { font-weight: 700; color: #1b5e20; margin-bottom: 16px; }
+    .tips-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .tip-card { background: #f8fdf8; border: 1px solid #d4e8d4; border-radius: 12px; padding: 16px; }
+    .tip-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .tip-card h4 { font-size: 0.9rem; font-weight: 700; color: #1b5e20; margin-bottom: 4px; }
+    .tip-card p  { font-size: 0.82rem; color: #666; }
+
+    @media (max-width: 700px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .tips-grid  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">🌿 Farm Guard</a>
+      <div class="nav-links">
+        <a href="index.html">হোম</a>
+        <a href="crop-prices.html">বাজার দর</a>
+        <a href="dosage-calculator.html" style="color:#2e7d32;font-weight:700;">মাত্রা হিসাব</a>
+        <a href="crop-calendar.html">ফসল ক্যালেন্ডার</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="calc-container">
+    <div class="calc-header">
+      <h1>🧪 কৃষি ওষুধের মাত্রা হিসাবক</h1>
+      <p>জমির আকার ও ওষুধ অনুযায়ী সঠিক পরিমাণ বের করুন — অপচয় কমান, ফসল বাঁচান।</p>
+    </div>
+
+    <div class="calc-grid">
+
+      <!-- Calculator form -->
+      <div class="calc-card">
+        <h3>⚖️ পরিমাণ হিসাব করুন</h3>
+
+        <div class="form-group">
+          <label>ফসলের ধরন</label>
+          <select id="cropSel" onchange="updateMedicines()">
+            <option value="ধান">ধান</option>
+            <option value="গম">গম</option>
+            <option value="আলু">আলু</option>
+            <option value="টমেটো">টমেটো</option>
+            <option value="মরিচ">মরিচ</option>
+            <option value="বেগুন">বেগুন</option>
+            <option value="পেঁয়াজ">পেঁয়াজ</option>
+            <option value="সরিষা">সরিষা</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>রোগের ধরন</label>
+          <select id="diseaseSel" onchange="updateMedicines()">
+            <option value="ব্লাস্ট">ব্লাস্ট রোগ</option>
+            <option value="মড়ক">মড়ক রোগ</option>
+            <option value="মরিচা">মরিচা রোগ</option>
+            <option value="শিথ ব্লাইট">শিথ ব্লাইট</option>
+            <option value="পাউডারি মিলডিউ">পাউডারি মিলডিউ</option>
+            <option value="অ্যান্থ্রাকনোজ">অ্যান্থ্রাকনোজ</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>জমির পরিমাণ</label>
+          <div class="unit-row">
+            <input type="number" id="landSize" placeholder="পরিমাণ" value="1" min="0.1" step="0.1" />
+            <select id="landUnit">
+              <option value="bigha">বিঘা</option>
+              <option value="acre">একর</option>
+              <option value="hectare">হেক্টর</option>
+              <option value="katha">কাঠা</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>পানির পরিমাণ (প্রতি বিঘায়)</label>
+          <div class="unit-row">
+            <input type="number" id="waterAmount" value="10" min="1" />
+            <select id="waterUnit">
+              <option value="liter">লিটার</option>
+              <option value="spray">স্প্রে ট্যাংক (১৬ লি)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="calc-btn" onclick="calculate()">⚡ হিসাব করুন</button>
+
+        <div class="result-area" id="resultArea">
+          <h4>✅ হিসাবের ফলাফল</h4>
+          <div class="result-row">
+            <span class="result-label">জমির আকার (বিঘায়)</span>
+            <span class="result-value" id="rLandBigha"></span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">মোট পানি লাগবে</span>
+            <span class="result-value" id="rWater"></span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">ওষুধের পরিমাণ</span>
+            <span class="result-value" id="rMedicine"></span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">স্প্রে ট্যাংক লাগবে</span>
+            <span class="result-value" id="rTank"></span>
+          </div>
+          <div class="result-row">
+            <span class="result-label">প্রতি ট্যাংকে ওষুধ</span>
+            <span class="result-value" id="rPerTank"></span>
+          </div>
+          <div class="warning-box">
+            ⚠️ স্প্রে করার আগে প্যাকেটের গায়ে লেখা নির্দেশনা পড়ুন। সন্ধ্যায় বা সকালে স্প্রে করুন।
+          </div>
+        </div>
+      </div>
+
+      <!-- Medicine selector -->
+      <div class="calc-card">
+        <h3>💊 ওষুধ বেছে নিন</h3>
+        <div class="medicine-list" id="medicineList"></div>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="tips-section">
+      <h3>💡 স্প্রে করার সঠিক নিয়ম</h3>
+      <div class="tips-grid">
+        <div class="tip-card">
+          <div class="tip-icon">🕐</div>
+          <h4>সঠিক সময়</h4>
+          <p>সকাল ৭-১০টা বা সন্ধ্যা ৪-৬টায় স্প্রে করুন। দুপুরে করবেন না।</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">🌬️</div>
+          <h4>বায়ু দিক</h4>
+          <p>বাতাসের বিপরীত দিকে মুখ করে স্প্রে করুন। বাতাসের গতি ৮ km/h-এর কম হলে ভালো।</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">🧤</div>
+          <h4>সুরক্ষা</h4>
+          <p>হাতমোজা, মাস্ক ও চশমা পরুন। স্প্রের পর সাবান দিয়ে হাত ধুন।</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">💧</div>
+          <h4>পানির মান</h4>
+          <p>পরিষ্কার পানি ব্যবহার করুন। ক্ষারীয় পানি ওষুধের কার্যকারিতা কমায়।</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">📅</div>
+          <h4>ব্যবধান</h4>
+          <p>দুটি স্প্রের মধ্যে কমপক্ষে ৭-১০ দিনের ব্যবধান রাখুন।</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-icon">🚿</div>
+          <h4>নজল পরিষ্কার</h4>
+          <p>প্রতিটি স্প্রের পর ট্যাংক ও নজল পরিষ্কার পানি দিয়ে ধুয়ে নিন।</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MEDICINES = {
+      'ব্লাস্ট': [
+        { name:'ট্রাইসাইক্লাজোল ৭৫% WP', dose:1.0, unit:'গ্রাম/লিটার', brand:'Beam, Tilt' },
+        { name:'কার্বেন্ডাজিম ৫০% WP',    dose:1.5, unit:'গ্রাম/লিটার', brand:'Bavistin' },
+        { name:'ইপ্রোবেনফস ৪৮% EC',       dose:1.5, unit:'মিলি/লিটার',  brand:'Kitazin' },
+      ],
+      'মড়ক': [
+        { name:'ম্যানকোজেব ৭৫% WP',        dose:2.0, unit:'গ্রাম/লিটার', brand:'Dithane M-45' },
+        { name:'ফেনামিডোন ১০% + ম্যানকোজেব', dose:3.0, unit:'গ্রাম/লিটার', brand:'Equation Pro' },
+        { name:'মেটালেক্সিল ৮% + ম্যানকোজেব',dose:2.5, unit:'গ্রাম/লিটার', brand:'Ridomil Gold' },
+      ],
+      'মরিচা': [
+        { name:'প্রোপিকোনাজোল ২৫% EC',     dose:1.0, unit:'মিলি/লিটার',  brand:'Tilt' },
+        { name:'ট্রায়াডিমেনল ২৫% WP',      dose:1.0, unit:'গ্রাম/লিটার', brand:'Bayleton' },
+        { name:'হেক্সাকোনাজোল ৫% SC',       dose:2.0, unit:'মিলি/লিটার',  brand:'Contaf' },
+      ],
+      'শিথ ব্লাইট': [
+        { name:'ভ্যালিডামাইসিন ৩% L',       dose:2.0, unit:'মিলি/লিটার',  brand:'Validacin' },
+        { name:'হেক্সাকোনাজোল ৫% SC',       dose:2.0, unit:'মিলি/লিটার',  brand:'Contaf' },
+        { name:'প্রোপিকোনাজোল ২৫% EC',     dose:1.0, unit:'মিলি/লিটার',  brand:'Tilt' },
+      ],
+      'পাউডারি মিলডিউ': [
+        { name:'সালফার ৮০% WDG',            dose:3.0, unit:'গ্রাম/লিটার', brand:'Thiovit' },
+        { name:'ট্রায়াডিমেনল ২৫% WP',      dose:1.0, unit:'গ্রাম/লিটার', brand:'Bayleton' },
+        { name:'হেক্সাকোনাজোল ৫% SC',       dose:2.0, unit:'মিলি/লিটার',  brand:'Contaf' },
+      ],
+      'অ্যান্থ্রাকনোজ': [
+        { name:'কার্বেন্ডাজিম ৫০% WP',      dose:1.0, unit:'গ্রাম/লিটার', brand:'Bavistin' },
+        { name:'ম্যানকোজেব ৭৫% WP',         dose:2.0, unit:'গ্রাম/লিটার', brand:'Dithane M-45' },
+        { name:'কপার অক্সিক্লোরাইড ৫০% WP', dose:2.5, unit:'গ্রাম/লিটার', brand:'Blitox' },
+      ],
+    };
+
+    let selectedMed = null;
+
+    const LAND_TO_BIGHA = { bigha:1, acre:3, hectare:7.43, katha:0.05 };
+
+    function updateMedicines() {
+      const disease = document.getElementById('diseaseSel').value;
+      const meds    = MEDICINES[disease] || [];
+      selectedMed   = meds[0] || null;
+
+      document.getElementById('medicineList').innerHTML = meds.map((m, i) => `
+        <div class="med-card ${i===0?'selected':''}" onclick="selectMed(this, ${i}, '${disease}')">
+          <div class="med-name">💊 ${m.name}</div>
+          <div class="med-meta">ব্র্যান্ড: ${m.brand}</div>
+          <div class="med-dose">মাত্রা: ${m.dose} ${m.unit}</div>
+        </div>
+      `).join('');
+    }
+
+    function selectMed(el, idx, disease) {
+      document.querySelectorAll('.med-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedMed = MEDICINES[disease][idx];
+    }
+
+    function calculate() {
+      if (!selectedMed) { alert('আগে একটি ওষুধ বেছে নিন'); return; }
+
+      const size      = parseFloat(document.getElementById('landSize').value) || 1;
+      const unit      = document.getElementById('landUnit').value;
+      const waterAmt  = parseFloat(document.getElementById('waterAmount').value) || 10;
+      const waterUnit = document.getElementById('waterUnit').value;
+
+      const bigha       = size * LAND_TO_BIGHA[unit];
+      const waterPerBigha = waterUnit === 'spray' ? waterAmt * 16 : waterAmt;
+      const totalWater  = bigha * waterPerBigha;
+      const medAmount   = totalWater * selectedMed.dose;
+      const tanks       = Math.ceil(totalWater / 16);
+      const perTank     = (medAmount / tanks).toFixed(1);
+
+      document.getElementById('rLandBigha').textContent = bigha.toFixed(2) + ' বিঘা';
+      document.getElementById('rWater').textContent     = totalWater.toFixed(0) + ' লিটার';
+      document.getElementById('rMedicine').textContent  = medAmount.toFixed(1) + ' ' + selectedMed.unit.split('/')[0];
+      document.getElementById('rTank').textContent      = tanks + ' টি (১৬ লি/ট্যাংক)';
+      document.getElementById('rPerTank').textContent   = perTank + ' ' + selectedMed.unit.split('/')[0];
+
+      document.getElementById('resultArea').style.display = 'block';
+      document.getElementById('resultArea').scrollIntoView({ behavior:'smooth' });
+    }
+
+    window.onload = updateMedicines;
+  </script>
+</body>
+</html>

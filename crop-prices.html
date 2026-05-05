@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ফসলের বাজার মূল্য — Farm Guard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .prices-container { max-width: 1200px; margin: 0 auto; padding: 32px 20px; }
+
+    .prices-header { margin-bottom: 28px; }
+    .prices-header h1 { font-size: 1.8rem; font-weight: 800; color: #1b5e20; display: flex; align-items: center; gap: 10px; }
+    .prices-header p { color: #888; margin-top: 4px; font-size: 0.9rem; }
+    .last-updated { float: right; font-size: 0.82rem; color: #888; margin-top: 8px; }
+
+    /* Top 4 cards */
+    .highlight-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+    .highlight-card { background: #fff; border: 1px solid #e0ece0; border-radius: 14px; padding: 18px; }
+    .highlight-card.green { border-color: #a5d6a7; background: #f1f8f1; }
+    .highlight-card.red   { border-color: #ffcdd2; background: #fff8f8; }
+    .highlight-card.blue  { border-color: #bbdefb; background: #f8fbff; }
+    .highlight-card.gold  { border-color: #ffe082; background: #fffdf0; }
+    .hc-label { font-size: 0.75rem; font-weight: 700; color: #888; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .hc-name  { font-size: 1.1rem; font-weight: 800; color: #1a2e1a; margin-bottom: 4px; }
+    .hc-meta  { font-size: 0.82rem; color: #666; }
+    .up   { color: #2e7d32; }
+    .down { color: #c62828; }
+
+    /* Sell suggestion */
+    .sell-banner { background: #fff8e1; border: 1px solid #ffe082; border-radius: 14px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: flex-start; gap: 12px; }
+    .sell-banner-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .sell-banner h4 { font-weight: 700; color: #e65100; margin-bottom: 4px; }
+    .sell-banner p  { font-size: 0.9rem; color: #555; }
+
+    /* Filter bar */
+    .filter-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    .search-input {
+      flex: 1; min-width: 200px;
+      padding: 10px 16px 10px 40px;
+      border: 1px solid #d4e8d4; border-radius: 12px;
+      font-family: 'Hind Siliguri', sans-serif; font-size: 0.95rem;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 12px center;
+      color: #1a2e1a;
+    }
+    .filter-bar select {
+      padding: 10px 14px; border: 1px solid #d4e8d4; border-radius: 12px;
+      font-family: 'Hind Siliguri', sans-serif; font-size: 0.9rem;
+      background: #fff; color: #1a2e1a;
+    }
+
+    /* Category tabs */
+    .cat-tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .cat-tab {
+      padding: 7px 18px; border-radius: 99px;
+      border: 1px solid #d4e8d4; background: #fff;
+      font-family: 'Hind Siliguri', sans-serif; font-size: 0.88rem;
+      font-weight: 600; color: #444; cursor: pointer; transition: all 0.2s;
+    }
+    .cat-tab.active { background: #2e7d32; color: #fff; border-color: #2e7d32; }
+    .cat-tab:hover:not(.active) { background: #f0f7f0; }
+
+    /* Price cards grid */
+    .prices-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .price-card {
+      background: #fff; border: 1px solid #e0ece0; border-radius: 16px;
+      padding: 20px; transition: all 0.2s; cursor: default;
+    }
+    .price-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .pc-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+    .pc-name { font-size: 1rem; font-weight: 700; color: #1a2e1a; }
+    .pc-en   { font-size: 0.78rem; color: #999; margin-top: 2px; }
+    .pc-quality { font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+    .q-high   { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
+    .q-medium { background: #fff8e1; color: #e65100; border: 1px solid #ffe082; }
+    .pc-price { font-size: 2rem; font-weight: 900; color: #1b5e20; margin-bottom: 2px; }
+    .pc-unit  { font-size: 0.8rem; color: #888; margin-bottom: 12px; }
+    .pc-avg   { font-size: 0.82rem; color: #888; margin-bottom: 10px; }
+    .pc-changes { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .pc-change { font-size: 0.8rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+    .change-up   { background: #e8f5e9; color: #2e7d32; }
+    .change-down { background: #ffebee; color: #c62828; }
+    .change-flat { background: #f5f5f5; color: #666; }
+    .pc-mini-chart { display: flex; align-items: flex-end; gap: 3px; height: 36px; margin-bottom: 14px; }
+    .mini-bar { flex: 1; border-radius: 3px 3px 0 0; background: #c8e6c9; transition: background 0.2s; }
+    .mini-bar:last-child { background: #2e7d32; }
+    .pc-footer { border-top: 1px solid #f0f7f0; padding-top: 12px; font-size: 0.8rem; color: #888; display: flex; flex-direction: column; gap: 4px; }
+    .pc-footer span { display: flex; align-items: center; gap: 6px; }
+
+    /* Trend arrow */
+    .trend-up   { color: #2e7d32; font-size: 1rem; }
+    .trend-down { color: #c62828; font-size: 1rem; }
+    .trend-flat { color: #888; font-size: 1rem; }
+
+    .no-results { text-align: center; padding: 60px 20px; color: #888; font-size: 1.1rem; }
+
+    @media (max-width: 900px) {
+      .highlight-grid { grid-template-columns: repeat(2,1fr); }
+      .prices-grid    { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 600px) {
+      .highlight-grid { grid-template-columns: 1fr 1fr; }
+      .prices-grid    { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">🌿 Farm Guard</a>
+      <div class="nav-links">
+        <a href="index.html">হোম</a>
+        <a href="dashboard.html">ড্যাশবোর্ড</a>
+        <a href="crop-prices.html" style="color:#2e7d32;font-weight:700;">বাজার দর</a>
+        <a href="dosage-calculator.html">মাত্রা হিসাব</a>
+        <a href="crop-calendar.html">ফসল ক্যালেন্ডার</a>
+        <a href="admin.html">অ্যাডমিন</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="prices-container">
+
+    <div class="prices-header">
+      <h1>📈 ফসলের বাজার মূল্য <span class="last-updated" id="lastUpdated"></span></h1>
+      <p>বাংলাদেশের প্রধান কৃষিপণ্যের জেলাভিত্তিক বাজার মূল্য ও প্রবণতা।</p>
+    </div>
+
+    <!-- Highlight cards -->
+    <div class="highlight-grid" id="highlightGrid"></div>
+
+    <!-- Sell suggestion -->
+    <div class="sell-banner">
+      <div class="sell-banner-icon">💡</div>
+      <div>
+        <h4>বিক্রির সুপারিশ</h4>
+        <p id="sellSuggestion">পেঁয়াজ, মরিচ (কাঁচা) — এই ফসলগুলোর দাম এই সপ্তাহে দ্রুত বাড়ছে। এখনই বিক্রি করলে ভালো মূল্য পাওয়ার সম্ভাবনা বেশি।</p>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <input class="search-input" type="text" id="searchInput" placeholder="ফসলের নাম খুঁজুন..." oninput="filterPrices()" />
+      <select id="districtFilter" onchange="filterPrices()">
+        <option value="ঢাকা">ঢাকা</option>
+        <option value="চট্টগ্রাম">চট্টগ্রাম</option>
+        <option value="রাজশাহী">রাজশাহী</option>
+        <option value="খুলনা">খুলনা</option>
+        <option value="বরিশাল">বরিশাল</option>
+        <option value="সিলেট">সিলেট</option>
+        <option value="রংপুর">রংপুর</option>
+        <option value="ময়মনসিংহ">ময়মনসিংহ</option>
+        <option value="বগুড়া">বগুড়া</option>
+        <option value="দিনাজপুর">দিনাজপুর</option>
+        <option value="যশোর">যশোর</option>
+      </select>
+      <select id="sortFilter" onchange="filterPrices()">
+        <option value="name">নাম অনুযায়ী</option>
+        <option value="price-high">দাম বেশি থেকে</option>
+        <option value="price-low">দাম কম থেকে</option>
+        <option value="change">পরিবর্তন অনুযায়ী</option>
+      </select>
+    </div>
+
+    <!-- Category tabs -->
+    <div class="cat-tabs">
+      <button class="cat-tab active" onclick="setCategory('সব', this)">সব</button>
+      <button class="cat-tab" onclick="setCategory('শস্য', this)">শস্য (৩)</button>
+      <button class="cat-tab" onclick="setCategory('সবজি', this)">সবজি (৫)</button>
+      <button class="cat-tab" onclick="setCategory('ডাল', this)">ডাল (১)</button>
+      <button class="cat-tab" onclick="setCategory('তেল ফসল', this)">তেল ফসল (১)</button>
+      <button class="cat-tab" onclick="setCategory('ফল', this)">ফল (১)</button>
+      <button class="cat-tab" onclick="setCategory('নগদ ফসল', this)">নগদ ফসল (১)</button>
+    </div>
+
+    <!-- Prices grid -->
+    <div class="prices-grid" id="pricesGrid"></div>
+
+  </div>
+
+  <script>
+    const PRICES_DATA = [
+      { id:'cp1',  name:'ধান (মোটা)',        nameEn:'Coarse Rice',  category:'শস্য',      unit:'প্রতি মণ',   nationalAvg:1100, weekChange:2.3,   monthChange:5.1,   history:[980,1000,1010,1030,1050,1070,1085,1100], bestSellMonth:'ডিসেম্বর–জানুয়ারি', harvestMonths:'নভেম্বর–ডিসেম্বর', quality:'মাঝারি', trend:'up',
+        prices:{'ঢাকা':1120,'চট্টগ্রাম':1090,'রাজশাহী':1080,'খুলনা':1100,'বরিশাল':1060,'সিলেট':1130,'রংপুর':1050,'ময়মনসিংহ':1075,'বগুড়া':1060,'দিনাজপুর':1040,'যশোর':1095} },
+      { id:'cp2',  name:'ধান (সরু/মিনিকেট)', nameEn:'Fine Rice',    category:'শস্য',      unit:'প্রতি মণ',   nationalAvg:1650, weekChange:1.2,   monthChange:3.8,   history:[1520,1550,1570,1590,1610,1625,1640,1650], bestSellMonth:'জানুয়ারি–ফেব্রুয়ারি', harvestMonths:'নভেম্বর–ডিসেম্বর', quality:'উচ্চ', trend:'up',
+        prices:{'ঢাকা':1700,'চট্টগ্রাম':1680,'রাজশাহী':1620,'খুলনা':1640,'বরিশাল':1610,'সিলেট':1720,'রংপুর':1590,'ময়মনসিংহ':1630,'বগুড়া':1600,'দিনাজপুর':1580,'যশোর':1645} },
+      { id:'cp3',  name:'গম',                nameEn:'Wheat',        category:'শস্য',      unit:'প্রতি মণ',   nationalAvg:1400, weekChange:-0.5,  monthChange:1.2,   history:[1430,1420,1415,1410,1405,1400,1398,1400], bestSellMonth:'এপ্রিল–মে', harvestMonths:'মার্চ–এপ্রিল', quality:'মাঝারি', trend:'stable',
+        prices:{'ঢাকা':1450,'চট্টগ্রাম':1420,'রাজশাহী':1380,'খুলনা':1390,'বরিশাল':1370,'সিলেট':1440,'রংপুর':1360,'ময়মনসিংহ':1380,'বগুড়া':1370,'দিনাজপুর':1350,'যশোর':1395} },
+      { id:'cp4',  name:'আলু',               nameEn:'Potato',       category:'সবজি',      unit:'প্রতি কেজি', nationalAvg:28,   weekChange:-3.4,  monthChange:-8.2,  history:[35,34,33,32,31,30,29,28], bestSellMonth:'মার্চ–এপ্রিল', harvestMonths:'ফেব্রুয়ারি–মার্চ', quality:'মাঝারি', trend:'down',
+        prices:{'ঢাকা':32,'চট্টগ্রাম':30,'রাজশাহী':25,'খুলনা':27,'বরিশাল':26,'সিলেট':31,'রংপুর':24,'ময়মনসিংহ':27,'বগুড়া':25,'দিনাজপুর':24,'যশোর':26} },
+      { id:'cp5',  name:'পেঁয়াজ',            nameEn:'Onion',        category:'সবজি',      unit:'প্রতি কেজি', nationalAvg:65,   weekChange:4.8,   monthChange:12.5,  history:[45,48,52,55,58,60,63,65], bestSellMonth:'জুন–জুলাই', harvestMonths:'মার্চ–এপ্রিল', quality:'উচ্চ', trend:'up',
+        prices:{'ঢাকা':72,'চট্টগ্রাম':68,'রাজশাহী':60,'খুলনা':63,'বরিশাল':62,'সিলেট':70,'রংপুর':58,'ময়মনসিংহ':63,'বগুড়া':60,'দিনাজপুর':58,'যশোর':62} },
+      { id:'cp6',  name:'রসুন',              nameEn:'Garlic',       category:'সবজি',      unit:'প্রতি কেজি', nationalAvg:180,  weekChange:1.7,   monthChange:6.3,   history:[155,158,162,165,170,174,178,180], bestSellMonth:'জুলাই–আগস্ট', harvestMonths:'মার্চ–এপ্রিল', quality:'উচ্চ', trend:'up',
+        prices:{'ঢাকা':200,'চট্টগ্রাম':190,'রাজশাহী':170,'খুলনা':175,'বরিশাল':172,'সিলেট':195,'রংপুর':165,'ময়মনসিংহ':175,'বগুড়া':168,'দিনাজপুর':162,'যশোর':172} },
+      { id:'cp7',  name:'সরিষা',             nameEn:'Mustard',      category:'তেল ফসল',   unit:'প্রতি মণ',   nationalAvg:2800, weekChange:0.7,   monthChange:2.5,   history:[2680,2700,2720,2740,2760,2775,2790,2800], bestSellMonth:'এপ্রিল–মে', harvestMonths:'মার্চ–এপ্রিল', quality:'উচ্চ', trend:'stable',
+        prices:{'ঢাকা':2900,'চট্টগ্রাম':2850,'রাজশাহী':2750,'খুলনা':2780,'বরিশাল':2760,'সিলেট':2870,'রংপুর':2720,'ময়মনসিংহ':2770,'বগুড়া':2740,'দিনাজপুর':2710,'যশোর':2770} },
+      { id:'cp8',  name:'টমেটো',             nameEn:'Tomato',       category:'সবজি',      unit:'প্রতি কেজি', nationalAvg:45,   weekChange:-6.3,  monthChange:-15.2, history:[65,62,58,55,52,50,47,45], bestSellMonth:'ডিসেম্বর–জানুয়ারি', harvestMonths:'নভেম্বর–ফেব্রুয়ারি', quality:'মাঝারি', trend:'down',
+        prices:{'ঢাকা':52,'চট্টগ্রাম':48,'রাজশাহী':40,'খুলনা':42,'বরিশাল':42,'সিলেট':50,'রংপুর':38,'ময়মনসিংহ':43,'বগুড়া':40,'দিনাজপুর':38,'যশোর':42} },
+      { id:'cp9',  name:'মরিচ (কাঁচা)',      nameEn:'Green Chili',  category:'সবজি',      unit:'প্রতি কেজি', nationalAvg:120,  weekChange:8.2,   monthChange:22.4,  history:[75,80,85,90,100,108,115,120], bestSellMonth:'মে–জুন', harvestMonths:'এপ্রিল–জুন', quality:'উচ্চ', trend:'up',
+        prices:{'ঢাকা':140,'চট্টগ্রাম':130,'রাজশাহী':110,'খুলনা':115,'বরিশাল':112,'সিলেট':135,'রংপুর':105,'ময়মনসিংহ':115,'বগুড়া':108,'দিনাজপুর':105,'যশোর':115} },
+      { id:'cp10', name:'মসুর ডাল',          nameEn:'Red Lentil',   category:'ডাল',       unit:'প্রতি কেজি', nationalAvg:135,  weekChange:-1.5,  monthChange:0.7,   history:[138,138,137,136,136,135,135,135], bestSellMonth:'এপ্রিল–মে', harvestMonths:'মার্চ–এপ্রিল', quality:'মাঝারি', trend:'stable',
+        prices:{'ঢাকা':145,'চট্টগ্রাম':140,'রাজশাহী':128,'খুলনা':132,'বরিশাল':130,'সিলেট':142,'রংপুর':125,'ময়মনসিংহ':130,'বগুড়া':127,'দিনাজপুর':124,'যশোর':130} },
+      { id:'cp11', name:'আম',                nameEn:'Mango',        category:'ফল',        unit:'প্রতি কেজি', nationalAvg:80,   weekChange:-12.0, monthChange:-25.0, history:[140,130,118,108,100,92,85,80], bestSellMonth:'মে–জুন', harvestMonths:'মে–আগস্ট', quality:'উচ্চ', trend:'down',
+        prices:{'ঢাকা':95,'চট্টগ্রাম':88,'রাজশাহী':65,'খুলনা':72,'বরিশাল':70,'সিলেট':90,'রংপুর':70,'ময়মনসিংহ':75,'বগুড়া':68,'দিনাজপুর':65,'যশোর':72} },
+      { id:'cp12', name:'পাট',               nameEn:'Jute',         category:'নগদ ফসল',   unit:'প্রতি মণ',   nationalAvg:2200, weekChange:1.8,   monthChange:4.2,   history:[2050,2080,2100,2130,2155,2170,2188,2200], bestSellMonth:'অক্টোবর–নভেম্বর', harvestMonths:'আগস্ট–সেপ্টেম্বর', quality:'মাঝারি', trend:'up',
+        prices:{'ঢাকা':2280,'চট্টগ্রাম':2220,'রাজশাহী':2160,'খুলনা':2180,'বরিশাল':2150,'সিলেট':2250,'রংপুর':2130,'ময়মনসিংহ':2170,'বগুড়া':2145,'দিনাজপুর':2120,'যশোর':2170} },
+    ];
+
+    let currentCategory = 'সব';
+    let currentDistrict = 'ঢাকা';
+
+    function init() {
+      // Last updated
+      const now = new Date();
+      document.getElementById('lastUpdated').textContent =
+        `🔄 সর্বশেষ: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} AM`;
+
+      renderHighlights();
+      renderPrices(PRICES_DATA);
+    }
+
+    function renderHighlights() {
+      const sorted = [...PRICES_DATA].sort((a,b) => b.weekChange - a.weekChange);
+      const topUp   = sorted[0];
+      const topDown = sorted[sorted.length-1];
+      const topCity = PRICES_DATA.reduce((a,b) => (b.prices['ঢাকা']||0) > (a.prices['ঢাকা']||0) ? b : a);
+      const bestSell= sorted.filter(d => d.trend === 'up')[0];
+
+      document.getElementById('highlightGrid').innerHTML = `
+        <div class="highlight-card green">
+          <div class="hc-label">📈 সবচেয়ে বেশি দাম বেড়েছে</div>
+          <div class="hc-name">${topUp.name}</div>
+          <div class="hc-meta up">↑ ${topUp.weekChange}%  এই সপ্তাহে</div>
+        </div>
+        <div class="highlight-card red">
+          <div class="hc-label">📉 সবচেয়ে বেশি দাম কমেছে</div>
+          <div class="hc-name">${topDown.name}</div>
+          <div class="hc-meta down">↓ ${Math.abs(topDown.weekChange)}%  এই সপ্তাহে</div>
+        </div>
+        <div class="highlight-card blue">
+          <div class="hc-label">📍 ঢাকাতে সর্বোচ্চ দাম</div>
+          <div class="hc-name">${topCity.name}</div>
+          <div class="hc-meta">৳${topCity.prices['ঢাকা']} ${topCity.unit}</div>
+        </div>
+        <div class="highlight-card gold">
+          <div class="hc-label">⭐ এখনই বিক্রির সুযোগ</div>
+          <div class="hc-name">${bestSell.name}</div>
+          <div class="hc-meta">${bestSell.name}-এর দাম বাড়ছে</div>
+        </div>
+      `;
+    }
+
+    function renderPrices(data) {
+      const district = document.getElementById('districtFilter').value;
+      const grid = document.getElementById('pricesGrid');
+      if (data.length === 0) {
+        grid.innerHTML = '<div class="no-results" style="grid-column:1/-1">🔍 কোনো ফসল পাওয়া যায়নি</div>';
+        return;
+      }
+      grid.innerHTML = data.map(p => {
+        const price     = p.prices[district] || p.nationalAvg;
+        const maxH      = Math.max(...p.history);
+        const trendIcon = p.trend === 'up' ? '↑' : p.trend === 'down' ? '↓' : '→';
+        const trendCls  = p.trend === 'up' ? 'trend-up' : p.trend === 'down' ? 'trend-down' : 'trend-flat';
+        const wCls      = p.weekChange  > 0 ? 'change-up' : p.weekChange  < 0 ? 'change-down' : 'change-flat';
+        const mCls      = p.monthChange > 0 ? 'change-up' : p.monthChange < 0 ? 'change-down' : 'change-flat';
+        const qCls      = p.quality === 'উচ্চ' ? 'q-high' : 'q-medium';
+        const diff      = price - p.nationalAvg;
+        const diffTxt   = diff >= 0 ? `+${diff} (+${((diff/p.nationalAvg)*100).toFixed(0)}%)` : `${diff} (${((diff/p.nationalAvg)*100).toFixed(0)}%)`;
+        const diffCls   = diff >= 0 ? 'up' : 'down';
+
+        return `
+          <div class="price-card">
+            <div class="pc-top">
+              <div>
+                <div class="pc-name">${p.name}</div>
+                <div class="pc-en">${p.nameEn} · ${p.category}</div>
+              </div>
+              <span class="pc-quality ${qCls}">${p.quality} মান</span>
+            </div>
+            <div class="pc-price">৳${price}</div>
+            <div class="pc-unit">${p.unit} · ${district}</div>
+            <div class="pc-avg">জাতীয় গড়: ৳${p.nationalAvg} &nbsp;<span class="${diffCls}" style="font-weight:700;">${diffTxt}</span></div>
+            <div class="pc-changes">
+              <span class="pc-change ${wCls}">সাপ্তাহিক: ${p.weekChange > 0 ? '↑' : '↓'} ${Math.abs(p.weekChange)}%</span>
+              <span class="pc-change ${mCls}">মাসিক: ${p.monthChange > 0 ? '↑' : '↓'} ${Math.abs(p.monthChange)}%</span>
+            </div>
+            <div class="pc-mini-chart">
+              ${p.history.map(v => `<div class="mini-bar" style="height:${Math.round((v/maxH)*36)}px"></div>`).join('')}
+            </div>
+            <div class="pc-footer">
+              <span>⭐ সেরা বিক্রির সময়: ${p.bestSellMonth}</span>
+              <span>🌾 সংগ্রহের সময়: ${p.harvestMonths}</span>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function setCategory(cat, el) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      filterPrices();
+    }
+
+    function filterPrices() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const sort   = document.getElementById('sortFilter').value;
+      const district = document.getElementById('districtFilter').value;
+
+      let filtered = PRICES_DATA.filter(p => {
+        const matchCat  = currentCategory === 'সব' || p.category === currentCategory;
+        const matchSearch = p.name.toLowerCase().includes(search) || p.nameEn.toLowerCase().includes(search);
+        return matchCat && matchSearch;
+      });
+
+      if (sort === 'price-high') filtered.sort((a,b) => (b.prices[district]||b.nationalAvg) - (a.prices[district]||a.nationalAvg));
+      if (sort === 'price-low')  filtered.sort((a,b) => (a.prices[district]||a.nationalAvg) - (b.prices[district]||b.nationalAvg));
+      if (sort === 'change')     filtered.sort((a,b) => b.weekChange - a.weekChange);
+      if (sort === 'name')       filtered.sort((a,b) => a.name.localeCompare(b.name));
+
+      renderPrices(filtered);
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>

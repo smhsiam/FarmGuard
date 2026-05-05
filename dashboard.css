@@ -1,0 +1,98 @@
+.dash-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.dash-header {
+  margin-bottom: 32px;
+}
+.dash-header h1 { font-size: 2rem; font-weight: 800; color: #1b5e20; }
+.dash-header p { color: #666; margin-top: 4px; }
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.dash-stat-card {
+  background: #fff;
+  border: 1px solid #e0ece0;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.dash-stat-icon { font-size: 1.8rem; margin-bottom: 10px; }
+.dash-stat-num { font-size: 2rem; font-weight: 800; color: #2e7d32; margin-bottom: 4px; }
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+.dash-card {
+  background: #fff;
+  border: 1px solid #e0ece0;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.dash-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: #1b5e20; }
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.history-table th {
+  background: #f0f7f0;
+  color: #2e7d32;
+  font-weight: 700;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 2px solid #d4e8d4;
+}
+.history-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f7f0;
+  color: #444;
+}
+.history-table tr:hover td { background: #f8fdf8; }
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.qa-btn {
+  display: block;
+  background: #f0f7f0;
+  border: 1px solid #d4e8d4;
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: center;
+  text-decoration: none;
+  color: #1b5e20;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.qa-btn:hover { background: #e0f0e0; border-color: #2e7d32; }
+
+.crop-bars { display: flex; flex-direction: column; gap: 14px; }
+.crop-bar-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #444;
+}
+.bar-wrap { background: #f0f7f0; border-radius: 99px; height: 10px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+
+@media (max-width: 900px) {
+  .dash-stats { grid-template-columns: repeat(2, 1fr); }
+  .dash-grid  { grid-template-columns: 1fr; }
+}

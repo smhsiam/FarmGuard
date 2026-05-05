@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ড্যাশবোর্ড — Farm Guard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="dashboard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">🌿 Farm Guard</a>
+      <div class="nav-links">
+        <a href="index.html">হোম</a>
+        <a href="dashboard.html" style="color:#2e7d32; font-weight:700;">ড্যাশবোর্ড</a>
+        <a href="index.html#disease-section">রোগ পরীক্ষা</a>
+        <a href="admin.html">অ্যাডমিন</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="dash-container">
+    <div class="dash-header">
+      <h1>👨‍🌾 কৃষক ড্যাশবোর্ড</h1>
+      <p>আপনার ফসল ও রোগ পরীক্ষার সারসংক্ষেপ</p>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="dash-stats">
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon">🔍</div>
+        <div class="dash-stat-num">২৪৭</div>
+        <div>মোট রোগ পরীক্ষা</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon">🦠</div>
+        <div class="dash-stat-num">৮৯</div>
+        <div>রোগ শনাক্ত</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon">🌱</div>
+        <div class="dash-stat-num">১২</div>
+        <div>পর্যবেক্ষিত ফসল</div>
+      </div>
+      <div class="dash-stat-card">
+        <div class="dash-stat-icon">🎯</div>
+        <div class="dash-stat-num">৯৪%</div>
+        <div>নির্ভুলতা</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- HISTORY TABLE -->
+      <div class="dash-card">
+        <h3>📋 পরীক্ষার ইতিহাস</h3>
+        <table class="history-table">
+          <thead>
+            <tr><th>ফসল</th><th>রোগ</th><th>তারিখ</th><th>তীব্রতা</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>ধান</td><td>ধানের ব্লাস্ট রোগ</td><td>২৪ অক্টোবর ২০২৩</td><td><span class="badge-red">তীব্র</span></td></tr>
+            <tr><td>গম</td><td>গমের মরিচা রোগ</td><td>২২ অক্টোবর ২০২৩</td><td><span class="badge-amber">মাঝারি</span></td></tr>
+            <tr><td>আলু</td><td>সুস্থ ফসল</td><td>২০ অক্টোবর ২০২৩</td><td><span class="badge-green">মৃদু</span></td></tr>
+            <tr><td>টমেটো</td><td>পাতা কোঁকড়ানো</td><td>১৮ অক্টোবর ২০২৩</td><td><span class="badge-amber">মাঝারি</span></td></tr>
+            <tr><td>পাট</td><td>পাটের কাণ্ড পচা</td><td>১৫ অক্টোবর ২০২৩</td><td><span class="badge-red">তীব্র</span></td></tr>
+            <tr><td>সরিষা</td><td>সরিষার জাব পোকা</td><td>১২ অক্টোবর ২০২৩</td><td><span class="badge-amber">মাঝারি</span></td></tr>
+            <tr><td>কলা</td><td>কলার সিগাটোকা</td><td>১০ অক্টোবর ২০২৩</td><td><span class="badge-amber">মাঝারি</span></td></tr>
+            <tr><td>মসুর</td><td>মসুরের ঢলে পড়া</td><td>০৫ অক্টোবর ২০২৩</td><td><span class="badge-red">তীব্র</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div>
+        <div class="dash-card" style="margin-bottom:20px;">
+          <h3>⚡ দ্রুত কাজ</h3>
+          <div class="quick-actions">
+            <a href="index.html#disease-section" class="qa-btn">📷 নতুন রোগ পরীক্ষা</a>
+            <a href="index.html#library" class="qa-btn">📚 রোগের ভান্ডার</a>
+            <a href="index.html#disease-section" class="qa-btn">🌤️ আবহাওয়া দেখুন</a>
+            <a href="admin.html" class="qa-btn">⚙️ অ্যাডমিন প্যানেল</a>
+          </div>
+        </div>
+
+        <!-- CROP DISTRIBUTION -->
+        <div class="dash-card">
+          <h3>🌾 ফসলের বিভাজন</h3>
+          <div class="crop-bars">
+            <div class="crop-bar-row">
+              <span>ধান</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:65%; background:#2e7d32;"></div></div>
+              <span>৬৫%</span>
+            </div>
+            <div class="crop-bar-row">
+              <span>আলু</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:40%; background:#43a047;"></div></div>
+              <span>৪০%</span>
+            </div>
+            <div class="crop-bar-row">
+              <span>গম</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:30%; background:#66bb6a;"></div></div>
+              <span>৩০%</span>
+            </div>
+            <div class="crop-bar-row">
+              <span>টমেটো</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:22%; background:#81c784;"></div></div>
+              <span>২২%</span>
+            </div>
+            <div class="crop-bar-row">
+              <span>মরিচ</span>
+              <div class="bar-wrap"><div class="bar-fill" style="width:15%; background:#a5d6a7;"></div></div>
+              <span>১৫%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

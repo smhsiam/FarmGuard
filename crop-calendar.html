@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ফসল ক্যালেন্ডার — Farm Guard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .cal-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+    .cal-header h1 { font-size: 1.8rem; font-weight: 800; color: #1b5e20; margin-bottom: 6px; }
+    .cal-header p  { color: #888; margin-bottom: 28px; }
+
+    /* Month strip */
+    .month-strip { display: grid; grid-template-columns: repeat(12, 1fr); gap: 6px; margin-bottom: 28px; }
+    .month-btn {
+      padding: 10px 4px; border-radius: 10px; border: 1px solid #d4e8d4;
+      background: #fff; font-family: 'Hind Siliguri', sans-serif;
+      font-size: 0.82rem; font-weight: 600; color: #444;
+      cursor: pointer; text-align: center; transition: all 0.2s;
+    }
+    .month-btn.active { background: #2e7d32; color: #fff; border-color: #2e7d32; }
+    .month-btn.current { border-color: #81c784; color: #2e7d32; }
+    .month-btn:hover:not(.active) { background: #f0f7f0; }
+
+    /* Current month alert */
+    .month-alert { background: #e8f5e9; border: 1px solid #a5d6a7; border-radius: 14px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .month-alert-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .month-alert h4 { font-weight: 700; color: #1b5e20; margin-bottom: 2px; }
+    .month-alert p  { font-size: 0.88rem; color: #555; }
+
+    /* Filter */
+    .cal-filter { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .cal-filter select, .cal-filter input {
+      padding: 10px 14px; border: 1px solid #d4e8d4; border-radius: 12px;
+      font-family: 'Hind Siliguri', sans-serif; font-size: 0.9rem;
+      background: #fff; color: #1a2e1a;
+    }
+
+    /* Crop cards */
+    .crop-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .crop-cal-card { background: #fff; border: 1px solid #e0ece0; border-radius: 16px; padding: 20px; transition: all 0.2s; }
+    .crop-cal-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .crop-cal-card.active-month { border-color: #2e7d32; background: #f8fdf8; }
+
+    .cc-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .cc-emoji { font-size: 2rem; }
+    .cc-name  { font-size: 1rem; font-weight: 700; color: #1a2e1a; }
+    .cc-cat   { font-size: 0.78rem; color: #999; margin-top: 2px; }
+
+    /* Timeline bar */
+    .timeline { margin-bottom: 14px; }
+    .timeline-label { font-size: 0.75rem; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .timeline-months { display: grid; grid-template-columns: repeat(12,1fr); gap: 2px; margin-bottom: 6px; }
+    .tm { height: 10px; border-radius: 3px; background: #f0f0f0; position: relative; }
+    .tm.sow    { background: #81c784; }
+    .tm.grow   { background: #ffd54f; }
+    .tm.harvest{ background: #ef9a9a; }
+    .tm.active { outline: 2px solid #2e7d32; }
+
+    .tm-legend { display: flex; gap: 10px; flex-wrap: wrap; }
+    .tm-leg { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: #666; }
+    .tm-dot { width: 10px; height: 10px; border-radius: 2px; }
+
+    .cc-details { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; }
+    .cc-detail  { display: flex; align-items: flex-start; gap: 8px; color: #555; }
+    .cc-detail span:first-child { flex-shrink: 0; }
+
+    .active-badge { display: inline-block; background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; font-size: 0.72rem; font-weight: 700; padding: 2px 10px; border-radius: 99px; margin-left: 6px; }
+
+    /* Year view toggle */
+    .view-toggle { display: flex; gap: 8px; margin-bottom: 20px; }
+    .vt-btn { padding: 8px 20px; border-radius: 10px; border: 1px solid #d4e8d4; background: #fff; font-family: 'Hind Siliguri', sans-serif; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; color: #444; }
+    .vt-btn.active { background: #2e7d32; color: #fff; border-color: #2e7d32; }
+
+    /* Year view table */
+    .year-view { overflow-x: auto; display: none; }
+    .year-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 700px; }
+    .year-table th { background: #f0f7f0; color: #2e7d32; font-weight: 700; padding: 10px 8px; text-align: center; border: 1px solid #e0ece0; }
+    .year-table td { padding: 8px; border: 1px solid #e0ece0; text-align: center; }
+    .year-table td:first-child { text-align: left; font-weight: 600; padding-left: 14px; background: #fafafa; }
+    .yt-sow     { background: #c8e6c9; border-radius: 4px; font-size: 0.72rem; font-weight: 700; color: #1b5e20; }
+    .yt-harvest { background: #ffcdd2; border-radius: 4px; font-size: 0.72rem; font-weight: 700; color: #c62828; }
+    .yt-grow    { background: #fff9c4; border-radius: 4px; font-size: 0.72rem; font-weight: 700; color: #7c5000; }
+    .yt-cur     { outline: 2px solid #2e7d32; }
+
+    @media (max-width: 900px) { .crop-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 600px) { .crop-grid { grid-template-columns: 1fr; } .month-strip { grid-template-columns: repeat(6,1fr); } }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">🌿 Farm Guard</a>
+      <div class="nav-links">
+        <a href="index.html">হোম</a>
+        <a href="crop-prices.html">বাজার দর</a>
+        <a href="dosage-calculator.html">মাত্রা হিসাব</a>
+        <a href="crop-calendar.html" style="color:#2e7d32;font-weight:700;">ফসল ক্যালেন্ডার</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="cal-container">
+    <div class="cal-header">
+      <h1>📅 ফসল ক্যালেন্ডার</h1>
+      <p>মাসভিত্তিক ফসল বপন, পরিচর্যা ও সংগ্রহের সঠিক সময়সূচি।</p>
+    </div>
+
+    <!-- Month strip -->
+    <div class="month-strip" id="monthStrip"></div>
+
+    <!-- Alert -->
+    <div class="month-alert" id="monthAlert">
+      <div class="month-alert-icon">🌱</div>
+      <div>
+        <h4 id="alertTitle"></h4>
+        <p id="alertDesc"></p>
+      </div>
+    </div>
+
+    <!-- Filters & Toggle -->
+    <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+      <div class="cal-filter">
+        <select id="categoryFilter" onchange="renderCards()">
+          <option value="সব">সব ফসল</option>
+          <option value="শস্য">শস্য</option>
+          <option value="সবজি">সবজি</option>
+          <option value="ফল">ফল</option>
+          <option value="তেল ফসল">তেল ফসল</option>
+          <option value="ডাল">ডাল</option>
+        </select>
+        <input type="text" id="searchCrop" placeholder="ফসল খুঁজুন..." oninput="renderCards()" style="min-width:160px;" />
+      </div>
+      <div class="view-toggle">
+        <button class="vt-btn active" onclick="setView('card', this)">🃏 কার্ড ভিউ</button>
+        <button class="vt-btn" onclick="setView('table', this)">📊 বার্ষিক ভিউ</button>
+      </div>
+    </div>
+
+    <div id="cardView" class="crop-grid"></div>
+    <div id="tableView" class="year-view"></div>
+  </div>
+
+  <script>
+    const MONTHS = ['জানু','ফেব্রু','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টে','অক্টো','নভে','ডিসে'];
+    const MONTH_FULL = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+
+    // sow=বপন(0-based months), grow=বৃদ্ধি, harvest=সংগ্রহ
+    const CROPS = [
+      { name:'ধান (আমন)',  emoji:'🌾', cat:'শস্য',    sow:[5,6],    grow:[7,8,9],   harvest:[10,11],  tips:'বীজতলায় ২৫-৩০ দিন রেখে চারা রোপণ করুন।', water:'বেশি', temp:'২৫-৩৫°C' },
+      { name:'ধান (বোরো)', emoji:'🌾', cat:'শস্য',    sow:[11,0],   grow:[1,2,3],   harvest:[4,5],    tips:'ঠান্ডা এড়াতে জানুয়ারির আগে রোপণ করুন।',  water:'বেশি', temp:'১৫-৩০°C' },
+      { name:'গম',         emoji:'🌿', cat:'শস্য',    sow:[10,11],  grow:[0,1],     harvest:[2,3],    tips:'বীজ শোধন করে বপন করুন।',                    water:'মাঝারি', temp:'১৫-২৫°C' },
+      { name:'আলু',        emoji:'🥔', cat:'সবজি',   sow:[10,11],  grow:[11,0],    harvest:[1,2],    tips:'সুস্থ বীজআলু ব্যবহার করুন।',                water:'মাঝারি', temp:'১৫-২৫°C' },
+      { name:'টমেটো',      emoji:'🍅', cat:'সবজি',   sow:[9,10],   grow:[10,11,0], harvest:[1,2,3],  tips:'রোগ-প্রতিরোধী জাত বেছে নিন।',               water:'মাঝারি', temp:'২০-২৮°C' },
+      { name:'মরিচ',       emoji:'🌶️', cat:'সবজি',   sow:[9,10],   grow:[11,0,1],  harvest:[2,3,4],  tips:'নিষ্কাশনযোগ্য মাটিতে চাষ করুন।',           water:'কম',    temp:'২০-৩০°C' },
+      { name:'বেগুন',      emoji:'🍆', cat:'সবজি',   sow:[1,2,8,9],grow:[3,4,10,11],harvest:[4,5,11,0],tips:'ফলছিদ্রকারী পোকা নিয়ন্ত্রণ করুন।',      water:'মাঝারি', temp:'২২-৩২°C' },
+      { name:'পেঁয়াজ',    emoji:'🧅', cat:'সবজি',   sow:[10,11],  grow:[0,1],     harvest:[2,3],    tips:'বলয় গঠনের সময় পানি কমিয়ে দিন।',           water:'কম',    temp:'১৩-২৪°C' },
+      { name:'সরিষা',      emoji:'🌻', cat:'তেল ফসল',sow:[9,10],   grow:[10,11],   harvest:[1,2],    tips:'৯০% ফল বাদামি হলে কাটুন।',                  water:'কম',    temp:'১৫-২৫°C' },
+      { name:'মসুর ডাল',  emoji:'🫘', cat:'ডাল',    sow:[10,11],  grow:[11,0],    harvest:[2,3],    tips:'পর্যায়ক্রমিক ফসল চাষ করুন।',               water:'কম',    temp:'১৫-২৫°C' },
+      { name:'আম',         emoji:'🥭', cat:'ফল',     sow:[5,6],    grow:[7,8,9,10,11,0,1,2],harvest:[4,5,6],tips:'মুকুল আসার আগে সেচ দিন।',          water:'মাঝারি', temp:'২৪-২৭°C' },
+      { name:'কলা',        emoji:'🍌', cat:'ফল',     sow:[2,3],    grow:[4,5,6,7,8,9,10],harvest:[11,0,1],tips:'সাকার দিয়ে বংশবিস্তার করুন।',       water:'বেশি', temp:'২৬-৩২°C' },
+      { name:'পাট',        emoji:'🌿', cat:'শস্য',   sow:[2,3,4],  grow:[5,6,7],   harvest:[7,8],    tips:'ভালো পচানোর জন্য পরিষ্কার পানি ব্যবহার করুন।',water:'বেশি', temp:'২৫-৩৫°C' },
+      { name:'ভুট্টা',     emoji:'🌽', cat:'শস্য',   sow:[10,11],  grow:[0,1],     harvest:[2,3],    tips:'পরাগায়নের সময় সেচ দেওয়া জরুরি।',          water:'মাঝারি', temp:'২০-৩০°C' },
+      { name:'শসা',        emoji:'🥒', cat:'সবজি',   sow:[1,2,8,9],grow:[2,3,9,10],harvest:[3,4,10,11],tips:'মাচায় চাষ করলে ফলন বাড়ে।',            water:'মাঝারি', temp:'২৪-৩২°C' },
+    ];
+
+    let currentMonth = new Date().getMonth();
+    let currentView  = 'card';
+
+    function buildMonthStrip() {
+      const strip = document.getElementById('monthStrip');
+      strip.innerHTML = MONTHS.map((m, i) => `
+        <button class="month-btn ${i===currentMonth?'active':''} ${i===new Date().getMonth()&&i!==currentMonth?'current':''}"
+          onclick="selectMonth(${i})">${m}</button>
+      `).join('');
+    }
+
+    function selectMonth(idx) {
+      currentMonth = idx;
+      buildMonthStrip();
+      updateAlert();
+      renderCards();
+    }
+
+    function updateAlert() {
+      const activeCrops = CROPS.filter(c =>
+        c.sow.includes(currentMonth) || c.grow.includes(currentMonth) || c.harvest.includes(currentMonth)
+      );
+      const sowNow     = CROPS.filter(c => c.sow.includes(currentMonth)).map(c=>c.name);
+      const harvestNow = CROPS.filter(c => c.harvest.includes(currentMonth)).map(c=>c.name);
+
+      document.getElementById('alertTitle').textContent = `${MONTH_FULL[currentMonth]} মাসে ${activeCrops.length}টি ফসলের কার্যক্রম`;
+      document.getElementById('alertDesc').textContent  =
+        (sowNow.length     ? `🌱 এখন বপন করুন: ${sowNow.join(', ')}. ` : '') +
+        (harvestNow.length ? `🌾 এখন সংগ্রহ করুন: ${harvestNow.join(', ')}.` : '');
+    }
+
+    function renderCards() {
+      const cat    = document.getElementById('categoryFilter').value;
+      const search = document.getElementById('searchCrop').value.toLowerCase();
+      const filtered = CROPS.filter(c =>
+        (cat === 'সব' || c.cat === cat) &&
+        c.name.toLowerCase().includes(search)
+      );
+
+      document.getElementById('cardView').innerHTML = filtered.map(c => {
+        const isActive = c.sow.includes(currentMonth) || c.grow.includes(currentMonth) || c.harvest.includes(currentMonth);
+        const bars = Array.from({length:12}, (_,i) => {
+          let cls = '';
+          if (c.sow.includes(i))     cls = 'sow';
+          if (c.grow.includes(i))    cls = 'grow';
+          if (c.harvest.includes(i)) cls = 'harvest';
+          return `<div class="tm ${cls} ${i===currentMonth?'active':''}"></div>`;
+        }).join('');
+
+        const actLabel = c.sow.includes(currentMonth) ? '🌱 বপনের সময়' :
+                         c.grow.includes(currentMonth) ? '🌿 বৃদ্ধির সময়' :
+                         c.harvest.includes(currentMonth) ? '🌾 সংগ্রহের সময়' : '';
+
+        return `
+          <div class="crop-cal-card ${isActive?'active-month':''}">
+            <div class="cc-top">
+              <div class="cc-emoji">${c.emoji}</div>
+              <div>
+                <div class="cc-name">${c.name} ${actLabel ? `<span class="active-badge">${actLabel}</span>` : ''}</div>
+                <div class="cc-cat">${c.cat}</div>
+              </div>
+            </div>
+            <div class="timeline">
+              <div class="timeline-label"><span>জানু</span><span>ডিসে</span></div>
+              <div class="timeline-months">${bars}</div>
+              <div class="tm-legend">
+                <div class="tm-leg"><div class="tm-dot" style="background:#81c784"></div>বপন</div>
+                <div class="tm-leg"><div class="tm-dot" style="background:#ffd54f"></div>বৃদ্ধি</div>
+                <div class="tm-leg"><div class="tm-dot" style="background:#ef9a9a"></div>সংগ্রহ</div>
+                <div class="tm-leg"><div class="tm-dot" style="background:#e0e0e0;border:1px solid #999"></div>বর্তমান মাস</div>
+              </div>
+            </div>
+            <div class="cc-details">
+              <div class="cc-detail"><span>💧</span><span>পানি: ${c.water}</span></div>
+              <div class="cc-detail"><span>🌡️</span><span>তাপমাত্রা: ${c.temp}</span></div>
+              <div class="cc-detail"><span>💡</span><span>${c.tips}</span></div>
+            </div>
+          </div>`;
+      }).join('') || '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;">কোনো ফসল পাওয়া যায়নি</div>';
+    }
+
+    function renderTable() {
+      const cat = document.getElementById('categoryFilter').value;
+      const filtered = CROPS.filter(c => cat === 'সব' || c.cat === cat);
+      const cur = new Date().getMonth();
+
+      let html = `<table class="year-table">
+        <thead><tr><th>ফসল</th>${MONTHS.map((m,i)=>`<th ${i===cur?'style="background:#e8f5e9;color:#1b5e20"':''}>` + m + '</th>').join('')}</tr></thead><tbody>`;
+
+      filtered.forEach(c => {
+        html += `<tr><td>${c.emoji} ${c.name}</td>`;
+        MONTHS.forEach((_,i) => {
+          const isCur = i === cur;
+          if (c.sow.includes(i))     html += `<td class="${isCur?'yt-cur':''}"><div class="yt-sow">বপন</div></td>`;
+          else if (c.harvest.includes(i)) html += `<td class="${isCur?'yt-cur':''}"><div class="yt-harvest">সংগ্রহ</div></td>`;
+          else if (c.grow.includes(i))    html += `<td class="${isCur?'yt-cur':''}"><div class="yt-grow">বৃদ্ধি</div></td>`;
+          else html += `<td class="${isCur?'yt-cur':''}"></td>`;
+        });
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+      document.getElementById('tableView').innerHTML = html;
+    }
+
+    function setView(view, el) {
+      currentView = view;
+      document.querySelectorAll('.vt-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      if (view === 'card') {
+        document.getElementById('cardView').style.display  = 'grid';
+        document.getElementById('tableView').style.display = 'none';
+        renderCards();
+      } else {
+        document.getElementById('cardView').style.display  = 'none';
+        document.getElementById('tableView').style.display = 'block';
+        renderTable();
+      }
+    }
+
+    window.onload = () => {
+      buildMonthStrip();
+      updateAlert();
+      renderCards();
+    };
+  </script>
+</body>
+</html>
